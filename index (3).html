@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>שירלס - נחש את השיר</title>
+<style>
+  :root{
+    --accent:#7c3aed;        /* סגול חי */
+    --accent-2:#ec4899;      /* ורוד */
+    --accent-grad:linear-gradient(135deg,#7c3aed 0%,#ec4899 100%);
+    --card:rgba(255,255,255,0.94);
+    --card-soft:#f4f0ff;
+    --text:#1e1633;
+    --muted:#8b83a3;
+    --good:#12b886;
+    --good-soft:#e3fbf1;
+    --danger:#f0416b;
+    --danger-soft:#ffe6ec;
+    --border:#e7e1f5;
+    --gold:#f7a600;
+    --shadow:0 18px 40px -18px rgba(80,30,140,0.55);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    font-family:'Segoe UI', 'Assistant', 'Arial Hebrew', Arial, sans-serif;
+    color:var(--text);
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
+    padding:22px 12px 40px;
+    background:linear-gradient(135deg,#8b5cf6 0%,#ec4899 45%,#fb923c 100%);
+    background-size:200% 200%;
+    animation:bgshift 18s ease infinite;
+  }
+  @keyframes bgshift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+  .wrap{width:100%;max-width:480px;}
+  h1{
+    text-align:center;
+    font-size:2.6rem;
+    font-weight:800;
+    letter-spacing:1px;
+    margin:6px 0 2px;
+    color:#fff;
+    text-shadow:0 3px 18px rgba(60,10,90,0.45);
+  }
+  .sub{
+    text-align:center;
+    color:rgba(255,255,255,0.9);
+    margin:0 0 22px;
+    font-size:0.95rem;
+    font-weight:500;
+  }
+  .card{
+    background:var(--card);
+    border-radius:24px;
+    padding:22px;
+    margin-bottom:16px;
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(6px);
+    animation:pop .35s cubic-bezier(.2,.9,.3,1.3);
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98);}to{opacity:1;transform:none;}}
+  .section-label{
+    font-size:0.9rem;
+    color:var(--muted);
+    margin:0 0 10px;
+    font-weight:700;
+  }
+  .choice-group{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .choice-btn{
+    flex:1;
+    padding:13px 6px;
+    border-radius:14px;
+    border:2px solid var(--border);
+    background:#fff;
+    color:var(--text);
+    font-size:0.92rem;
+    font-weight:600;
+    cursor:pointer;
+    text-align:center;
+    transition:transform .12s, box-shadow .2s, border-color .2s;
+  }
+  .choice-btn:active{transform:scale(0.95);}
+  .choice-btn.selected{
+    background:var(--accent-grad);
+    border-color:transparent;
+    color:#fff;
+    font-weight:800;
+    box-shadow:0 10px 20px -8px rgba(124,58,237,0.7);
+    transform:translateY(-1px);
+  }
+  #startBtn,#dailyBtn{
+    display:block;width:100%;
+    border:none;cursor:pointer;
+    padding:17px;border-radius:16px;
+    font-weight:800;font-size:1.12rem;
+    transition:transform .12s, box-shadow .2s;
+  }
+  #startBtn{
+    background:var(--accent-grad);color:#fff;
+    box-shadow:0 14px 26px -10px rgba(124,58,237,0.8);
+  }
+  #dailyBtn{
+    margin-top:11px;
+    background:linear-gradient(135deg,#f7a600 0%,#fb6f3c 100%);color:#fff;
+    box-shadow:0 14px 26px -10px rgba(247,120,0,0.7);
+  }
+  #startBtn:active,#dailyBtn:active{transform:scale(0.97);}
+  .score-row{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:14px;
+    font-size:0.9rem;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .score-val{color:var(--accent);font-weight:800;font-size:1.25rem;}
+  #roundLabel{
+    background:var(--card-soft);color:var(--accent);
+    padding:5px 12px;border-radius:999px;font-weight:800;font-size:0.82rem;
+  }
+  .timeline{
+    display:flex;
+    gap:5px;
+    margin:8px 0;
+  }
+  .seg{
+    flex:1;
+    height:10px;
+    border-radius:6px;
+    background:var(--border);
+    transition:background .3s, transform .3s;
+  }
+  .seg.active{background:var(--accent-grad);transform:scaleY(1.35);}
+  .seg.used{background:#c9bdf0;}
+  .timer-label{
+    display:flex;
+    justify-content:space-between;
+    color:var(--muted);
+    font-size:0.82rem;
+    font-weight:600;
+    margin-bottom:16px;
+  }
+  .play-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:20px;
+  }
+  #playBtn{
+    width:82px;height:82px;
+    border-radius:50%;
+    border:none;
+    background:var(--accent-grad);
+    color:#fff;
+    font-size:1.9rem;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 12px 30px -6px rgba(124,58,237,0.7);
+    transition:transform .15s;
+    animation:pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{box-shadow:0 12px 30px -6px rgba(124,58,237,0.6);}50%{box-shadow:0 12px 44px 2px rgba(236,72,153,0.65);}}
+  #playBtn:active{transform:scale(0.9);}
+  #playBtn:disabled{opacity:0.55;cursor:not-allowed;animation:none;}
+  .guess-row{position:relative;margin-bottom:12px;}
+  input[type=text]{
+    width:100%;
+    padding:15px 16px;
+    border-radius:14px;
+    border:2px solid var(--border);
+    background:#fbfaff;
+    color:var(--text);
+    font-size:1rem;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  input[type=text]::placeholder{color:#b3aac9;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(124,58,237,0.15);}
+  .btn-row{display:flex;gap:10px;}
+  button.action{
+    flex:1;
+    padding:14px;
+    border-radius:14px;
+    border:none;
+    font-size:1rem;
+    cursor:pointer;
+    font-weight:800;
+    transition:transform .12s;
+  }
+  button.action:active{transform:scale(0.96);}
+  #submitBtn{background:var(--accent-grad);color:#fff;box-shadow:0 10px 20px -10px rgba(124,58,237,0.7);}
+  #skipBtn{background:#f1edfb;border:2px solid var(--border);color:var(--muted);flex:0 0 34%;}
+  button.action:disabled{opacity:0.5;cursor:not-allowed;}
+  .guesses{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:8px;}
+  .guesses li{
+    padding:11px 14px;
+    border-radius:12px;
+    background:#faf8ff;
+    border:2px solid var(--border);
+    display:flex;justify-content:space-between;
+    font-size:0.92rem;font-weight:600;
+    animation:pop .25s ease;
+  }
+  .guesses li.wrong{color:var(--danger);background:var(--danger-soft);border-color:transparent;}
+  .guesses li.right{color:var(--good);background:var(--good-soft);border-color:transparent;}
+  .result{text-align:center;padding:24px 20px;}
+  .result h2{margin:0 0 10px;font-size:1.5rem;}
+  .result .song-name{
+    background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;font-size:1.5rem;font-weight:800;
+  }
+  .result .artist-name{color:var(--muted);margin-bottom:12px;font-weight:600;}
+  .result .points-earned{color:var(--gold);font-size:1.15rem;font-weight:800;margin-bottom:18px;}
+  .footer-note{text-align:center;color:rgba(255,255,255,0.85);font-size:0.75rem;margin-top:18px;line-height:1.6;}
+  .new-game,.home-btn{
+    display:block;width:100%;margin-top:11px;
+    padding:14px 24px;border-radius:14px;font-weight:800;cursor:pointer;font-size:1rem;
+    transition:transform .12s;
+  }
+  .new-game:active,.home-btn:active{transform:scale(0.97);}
+  .new-game{background:var(--accent-grad);color:#fff;border:none;box-shadow:0 12px 24px -10px rgba(124,58,237,0.7);}
+  .home-btn{background:transparent;border:2px solid var(--border);color:var(--muted);}
+  .loading{text-align:center;color:var(--muted);padding:40px 0;font-weight:600;}
+  .spinner{
+    width:38px;height:38px;border-radius:50%;
+    border:4px solid var(--border);border-top-color:var(--accent);
+    margin:0 auto 14px;
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🎵 שירלס</h1>
+  <p class="sub">נחשו את השיר הישראלי מתוך הצליל</p>
+
+  <!-- מסך פתיחה -->
+  <div class="card" id="homeScreen">
+    <p class="section-label">איזה וייב?</p>
+    <div class="choice-group" id="eraGroup">
+      <button class="choice-btn" data-value="classic">🕺 של פעם</button>
+      <button class="choice-btn" data-value="new">🔥 חם עכשיו</button>
+      <button class="choice-btn selected" data-value="all">🎲 הכל מהכל</button>
+    </div>
+    <p class="section-label">כמה אש?</p>
+    <div class="choice-group" id="diffGroup">
+      <button class="choice-btn selected" data-value="easy">😎 רגוע</button>
+      <button class="choice-btn" data-value="hard">💪 אלופים</button>
+    </div>
+    <button id="startBtn">🎮 יאללה, מתחילים</button>
+    <button id="dailyBtn">🎯 השיר של היום</button>
+    <p class="section-label" id="highScoreLine" style="text-align:center;margin-top:12px;display:none;"></p>
+  </div>
+
+  <div class="card" id="loadingCard" style="display:none;">
+    <div class="loading">
+      <div class="spinner"></div>
+      טוען קטעי שירים...
+    </div>
+  </div>
+
+  <div class="card" id="gameCard" style="display:none;">
+    <div class="score-row">
+      <span>ניקוד: <span class="score-val" id="scoreVal">100</span> <span style="color:var(--muted);">| שיא: <span id="highScoreInline">0</span></span></span>
+      <span id="roundLabel">סיבוב 1</span>
+    </div>
+    <div class="timeline" id="timeline"></div>
+    <div class="timer-label">
+      <span id="currentDur">1 שנ׳</span>
+      <span id="attemptCount">ניסיון 1 מתוך 6</span>
+    </div>
+    <div class="play-row">
+      <button id="playBtn">▶</button>
+    </div>
+    <div class="guess-row">
+      <input type="text" id="guessInput" list="songList" placeholder="הקלד שם שיר או אמן..." autocomplete="off">
+      <datalist id="songList"></datalist>
+    </div>
+    <div class="btn-row">
+      <button class="action" id="submitBtn">נחש</button>
+      <button class="action" id="skipBtn">דלג ▶</button>
+    </div>
+    <ul class="guesses" id="guessList"></ul>
+  </div>
+
+  <div class="card result" id="resultCard" style="display:none;">
+    <h2 id="resultTitle"></h2>
+    <div class="song-name" id="resultSong"></div>
+    <div class="artist-name" id="resultArtist"></div>
+    <div class="points-earned" id="resultPoints"></div>
+    <button class="new-game" id="shareBtn" style="display:none;background:var(--gold);">שתף תוצאה 📤</button>
+    <button class="new-game" id="nextRoundBtn">השיר הבא ▶</button>
+    <button class="home-btn" id="homeBtn">לתפריט הראשי 🏠</button>
+  </div>
+
+  <p class="footer-note" id="statusNote">
+    קטעי ההאזנה (30 שנ׳) מגיעים ישירות משירות iTunes/Apple Music — לא מאוחסנים באתר.
+  </p>
+</div>
+
+<audio id="player" preload="none"></audio>
+
+<script>
+// ---------------------------------------------------------------
+// מאגר השירים - רק שם שיר + אמן + תקופה (classic / new).
+// קטע ההאזנה נשלף אוטומטית מ-iTunes בזמן ריצה.
+// כדי להוסיף שיר: הוסף שורה עם title + artist + era.
+// ---------------------------------------------------------------
+const SONG_QUERIES = [
+  // קלאסיקות - רוק ופופ ישראלי
+  { title: "עוף גוזל", artist: "אריק איינשטיין", era: "classic" },
+  { title: "עטור מצחך", artist: "אריק איינשטיין", era: "classic" },
+  { title: "יושב על הגדר", artist: "אריק איינשטיין", era: "classic" },
+  { title: "בדד", artist: "זוהר ארגוב", era: "classic" },
+  { title: "אלינור", artist: "זוהר ארגוב", era: "classic" },
+  { title: "הפרח בגני", artist: "זוהר ארגוב", era: "classic" },
+  { title: "יו יה", artist: "כוורת", era: "classic" },
+  { title: "שיר משוגע", artist: "כוורת", era: "classic" },
+  { title: "היה היו", artist: "משינה", era: "classic" },
+  { title: "לונדון", artist: "משינה", era: "classic" },
+  { title: "אני ואתה", artist: "שלמה ארצי", era: "classic" },
+  { title: "אחרים", artist: "שלמה ארצי", era: "classic" },
+  { title: "מלך העולם", artist: "שלמה ארצי", era: "classic" },
+  { title: "נולד לרקוד", artist: "שלמה ארצי", era: "classic" },
+  { title: "סתיו", artist: "אביב גפן", era: "classic" },
+  { title: "לישון בחוץ", artist: "אביב גפן", era: "classic" },
+  { title: "יש בי אהבה", artist: "יהודה פוליקר", era: "classic" },
+  { title: "סתיו 89", artist: "יהודה פוליקר", era: "classic" },
+  { title: "מכתב לאחי", artist: "שלמה ארצי", era: "classic" },
+  { title: "שיר ערש", artist: "דני סנדרסון", era: "classic" },
+  { title: "אנשים טובים", artist: "כנסיית השכל", era: "classic" },
+  { title: "פנטזיה", artist: "מוניקה סקס", era: "classic" },
+  { title: "אלף לילה ולילה", artist: "אריק איינשטיין", era: "classic" },
+  { title: "שלכת", artist: "גידי גוב", era: "classic" },
+  { title: "פזמון להחזרת האבידה", artist: "שלום חנוך", era: "classic" },
+  { title: "אילנית", artist: "שלום חנוך", era: "classic" },
+  // קלאסיקות - מזרחית
+  { title: "כשאת איתו", artist: "אייל גולן", era: "classic" },
+  { title: "מי שמאמין", artist: "אייל גולן", era: "classic" },
+  { title: "על חבל דק", artist: "אייל גולן", era: "classic" },
+  { title: "ג'ולי", artist: "אייל גולן", era: "classic" },
+  { title: "הופה", artist: "עומר אדם", era: "classic" },
+  { title: "תתחדשי", artist: "עומר אדם", era: "classic" },
+  { title: "כאילו כלום", artist: "שרית חדד", era: "classic" },
+  { title: "פרפר נחמד", artist: "שרית חדד", era: "classic" },
+  { title: "מילים יפות", artist: "עברי לידר", era: "classic" },
+  { title: "תחפושות", artist: "עברי לידר", era: "classic" },
+  { title: "רואים את זה עליי", artist: "משה פרץ", era: "classic" },
+  { title: "אני שלך", artist: "משה פרץ", era: "classic" },
+  { title: "חביבי", artist: "דודו טסה", era: "classic" },
+  { title: "כוכבים בשמיים", artist: "עופר לוי", era: "classic" },
+  { title: "אותה אהבה", artist: "ליאור נרקיס", era: "classic" },
+  { title: "לרקוד איתך", artist: "קובי פרץ", era: "classic" },
+  // עשור אחרון - מזרחית ופופ
+  { title: "מתפוצץ לי הראש", artist: "עדן חסון", era: "new" },
+  { title: "שקיעות אדומות", artist: "עדן חסון", era: "new" },
+  { title: "סוף סוף אני", artist: "עדן חסון", era: "new" },
+  { title: "ילדה טובה", artist: "עדן חסון", era: "new" },
+  { title: "כפיות", artist: "עדן חסון", era: "new" },
+  { title: "אין יותר מועדונים", artist: "עדן חסון", era: "new" },
+  { title: "ילדים כאלה", artist: "עדן חסון", era: "new" },
+  { title: "שיכורים", artist: "עדן חסון", era: "new" },
+  { title: "בן 32", artist: "עומר אדם", era: "new" },
+  { title: "משפחה וכבוד", artist: "עומר אדם", era: "new" },
+  { title: "מלכת הדור", artist: "עומר אדם", era: "new" },
+  { title: "רק שלך", artist: "עומר אדם", era: "new" },
+  { title: "לילות וקללות", artist: "עומר אדם", era: "new" },
+  { title: "צריך לצאת מפה", artist: "עומר אדם", era: "new" },
+  { title: "טוב לי", artist: "עומר אדם", era: "new" },
+  { title: "צעקתי אליך", artist: "אייל גולן", era: "new" },
+  { title: "מדע בדיוני", artist: "אייל גולן", era: "new" },
+  { title: "ילדה שלי", artist: "אייל גולן", era: "new" },
+  { title: "אימא אדמה", artist: "נועה קירל", era: "new" },
+  { title: "טיפש שכמוני", artist: "נועה קירל", era: "new" },
+  { title: "בואי", artist: "סטטיק ובן אל תבורי", era: "new" },
+  { title: "תותים", artist: "סטטיק ובן אל תבורי", era: "new" },
+  { title: "אוהב אותה", artist: "סטטיק ובן אל תבורי", era: "new" },
+  { title: "אלוהים אדירים", artist: "עדן בן זקן", era: "new" },
+  { title: "עומדת מלכה", artist: "עדן בן זקן", era: "new" },
+  { title: "שדה תעופה", artist: "עומר אדם ונסרין קדרי", era: "new" },
+  { title: "יאללה ביי", artist: "הראל סקעת", era: "new" },
+  { title: "טוי", artist: "נטע ברזילי", era: "new" },
+  { title: "כפיים", artist: "דודו אהרון", era: "new" },
+  { title: "טיטניק", artist: "דודו אהרון", era: "new" },
+  { title: "נסראללה", artist: "אליעד", era: "new" },
+  { title: "לצייר אותך", artist: "אלה לי", era: "new" },
+  // עשור אחרון - היפ הופ / ראפ
+  { title: "בוקר טוב אבא", artist: "סאבלימינל", era: "new" },
+  { title: "המלחמה הבאה", artist: "סאבלימינל", era: "new" },
+  { title: "בלדה לאסופי", artist: "האח הגדול", era: "new" },
+  { title: "בלב שקט", artist: "נצ'י נצ'", era: "new" },
+  // עשור אחרון - שירי אמונה/פופ רוחני
+  { title: "כאן אני רוצה לגור", artist: "ישי ריבו", era: "new" },
+  { title: "שאיבת מים", artist: "ישי ריבו", era: "new" },
+  { title: "אהבתי", artist: "ישי ריבו", era: "new" },
+  { title: "מילה טובה", artist: "חנן בן ארי", era: "new" },
+  { title: "לרגע אחד", artist: "עמיר דדון", era: "new" }
+];
+
+const DIFFICULTY = {
+  easy: { durations: [1,2,4,7,11,16], correctBonuses: [30,24,18,12,8,4] },
+  hard: { durations: [1,3,6,10],      correctBonuses: [45,35,25,15] }
+};
+const WRONG_PENALTY = 8;
+const SKIP_PENALTY = 5;
+
+let selectedEra = 'all';
+let selectedDiff = 'easy';
+let DURATIONS = DIFFICULTY.easy.durations;
+let SONGS = [];       // רשימת השירים הזמינים לסיבוב הנוכחי (אחרי סינון תקופה וטעינת preview)
+let usedIndexes = new Set();
+let audio = document.getElementById('player');
+let current = null;
+let attempt = 0;
+let finished = false;
+let playTimeout = null;
+let totalScore = 0;
+let sessionHighScore = 0;
+let roundNum = 1;
+let dailyMode = false;
+let guessMarks = [];   // 'right' / 'wrong' / 'skip' לכל ניסיון - לבניית שורת האימוג'י בשיתוף
+
+// שיא שנשמר גם אחרי סגירת הדפדפן
+const STORAGE_BEST = 'shireles_best';
+const STORAGE_DAILY = 'shireles_daily';
+sessionHighScore = parseInt(localStorage.getItem(STORAGE_BEST) || '0', 10) || 0;
+
+// --- בחירת תקופה / רמת קושי במסך הבית ---
+document.getElementById('eraGroup').addEventListener('click', e => {
+  const btn = e.target.closest('.choice-btn');
+  if(!btn) return;
+  document.querySelectorAll('#eraGroup .choice-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedEra = btn.dataset.value;
+});
+document.getElementById('diffGroup').addEventListener('click', e => {
+  const btn = e.target.closest('.choice-btn');
+  if(!btn) return;
+  document.querySelectorAll('#diffGroup .choice-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedDiff = btn.dataset.value;
+});
+
+document.getElementById('startBtn').addEventListener('click', startGame);
+document.getElementById('homeBtn').addEventListener('click', goHome);
+document.getElementById('nextRoundBtn').addEventListener('click', () => {
+  roundNum++;
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('gameCard').style.display = 'block';
+  pickSong();
+});
+
+function renderHomeHighScore(){
+  const el = document.getElementById('highScoreLine');
+  if(sessionHighScore > 0){
+    el.style.display = 'block';
+    el.textContent = '🏆 השיא שלך: ' + sessionHighScore;
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function goHome(){
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('gameCard').style.display = 'none';
+  document.getElementById('homeScreen').style.display = 'block';
+  renderHomeHighScore();
+  roundNum = 1;
+  dailyMode = false;
+  SONGS = [];
+  usedIndexes = new Set();
+}
+
+function setStatus(msg, isError){
+  const el = document.getElementById('statusNote');
+  el.textContent = msg;
+  el.style.color = isError ? 'var(--danger)' : 'var(--muted)';
+}
+
+const isEmbedded = (function(){
+  try { return window.self !== window.top; } catch(e) { return true; }
+})();
+if(isEmbedded){
+  setStatus('⚠️ נראה שהדף נפתח בתוך תצוגה מקדימה של אפליקציה (לא דפדפן מלא). זה חוסם גישה לאינטרנט. הורד את הקובץ ופתח אותו ב-Safari/Chrome כדי שהשירים ייטענו.', true);
+}
+
+async function itunesSearch(query){
+  try{
+    const url = 'https://itunes.apple.com/search?term=' + encodeURIComponent(query) +
+                '&media=music&entity=song&country=IL&limit=3';
+    const res = await fetch(url);
+    if(!res.ok) return null;
+    const data = await res.json();
+    if(data && data.results && data.results.length > 0){
+      const withPreview = data.results.find(r => r.previewUrl);
+      return withPreview || null;
+    }
+    return null;
+  } catch(err){
+    console.error('itunes search failed', query, err);
+    return null;
+  }
+}
+
+async function startGame(){
+  DURATIONS = DIFFICULTY[selectedDiff].durations;
+  totalScore = 100;
+  roundNum = 1;
+  document.getElementById('homeScreen').style.display = 'none';
+  document.getElementById('loadingCard').style.display = 'block';
+
+  const pool = SONG_QUERIES.filter(s => selectedEra === 'all' || s.era === selectedEra);
+
+  const results = await Promise.all(pool.map(s => itunesSearch(s.artist + ' ' + s.title)));
+  SONGS = results
+    .map((r) => r && r.previewUrl ? {
+      title: r.trackName,      // השם המדויק כפי שמופיע ב-iTunes, לא הניחוש שלנו
+      artist: r.artistName,    // כנ"ל לגבי שם האמן - כך התשובה תמיד תואמת בדיוק את מה שמתנגן
+      preview: r.previewUrl
+    } : null)
+    .filter(Boolean);
+
+  document.getElementById('loadingCard').style.display = 'none';
+
+  if(SONGS.length < 2){
+    setStatus('⚠️ לא הצלחתי לשלוף מספיק שירים כרגע (בדוק חיבור אינטרנט או נסה תקופה אחרת). חוזר לתפריט.', true);
+    document.getElementById('homeScreen').style.display = 'block';
+    return;
+  }
+  document.getElementById('gameCard').style.display = 'block';
+  document.getElementById('songList').innerHTML = '';
+  usedIndexes = new Set();
+  pickSong();
+}
+
+function fillDatalist(){
+  // לא בשימוש יותר בכוונה - הרשימה נשארת ריקה כדי לא לחשוף את מאגר השירים
+  // לפני שהמשתמש התחיל להקליד. ההשלמה מגיעה רק מחיפוש חי (liveSearchSongs).
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// אינדקס מקומי רחב לצורך "כיוון" מיידי מהאות הראשונה (בלי להמתין לרשת).
+// זו רשימת עזר כללית של שירים ישראליים מוכרים - היא בכוונה רחבה בהרבה
+// ממאגר "השיר המסתורי" כדי שגם חיפוש לפי שם אמן יראה הרבה שירים אמיתיים
+// שלו ולא רק את אלה שיכולים להיות התשובה.
+const AUTOCOMPLETE_INDEX = [
+  { title: "עוף גוזל", artist: "אריק איינשטיין" },
+  { title: "עטור מצחך", artist: "אריק איינשטיין" },
+  { title: "יושב על הגדר", artist: "אריק איינשטיין" },
+  { title: "אני ואתה", artist: "אריק איינשטיין" },
+  { title: "בדד", artist: "זוהר ארגוב" },
+  { title: "אלינור", artist: "זוהר ארגוב" },
+  { title: "הפרח בגני", artist: "זוהר ארגוב" },
+  { title: "יו יה", artist: "כוורת" },
+  { title: "שיר משוגע", artist: "כוורת" },
+  { title: "היה היו", artist: "משינה" },
+  { title: "לונדון", artist: "משינה" },
+  { title: "אני ואתה", artist: "שלמה ארצי" },
+  { title: "אחרים", artist: "שלמה ארצי" },
+  { title: "מלך העולם", artist: "שלמה ארצי" },
+  { title: "סתיו", artist: "אביב גפן" },
+  { title: "אני ואתה", artist: "אביב גפן" },
+  { title: "יש בי אהבה", artist: "יהודה פוליקר" },
+  { title: "סתיו 89", artist: "יהודה פוליקר" },
+  { title: "כשאת איתו", artist: "אייל גולן" },
+  { title: "מי שמאמין", artist: "אייל גולן" },
+  { title: "על חבל דק", artist: "אייל גולן" },
+  { title: "צעקתי אליך", artist: "אייל גולן" },
+  { title: "מדע בדיוני", artist: "אייל גולן" },
+  { title: "הופה", artist: "עומר אדם" },
+  { title: "תתחדשי", artist: "עומר אדם" },
+  { title: "בן 32", artist: "עומר אדם" },
+  { title: "משפחה וכבוד", artist: "עומר אדם" },
+  { title: "מלכת הדור", artist: "עומר אדם" },
+  { title: "רק שלך", artist: "עומר אדם" },
+  { title: "לילות וקללות", artist: "עומר אדם" },
+  { title: "צריך לצאת מפה", artist: "עומר אדם" },
+  { title: "כאילו כלום", artist: "שרית חדד" },
+  { title: "פרפר נחמד", artist: "שרית חדד" },
+  { title: "מילים יפות", artist: "עברי לידר" },
+  { title: "תחפושות", artist: "עברי לידר" },
+  { title: "מתפוצץ לי הראש", artist: "עדן חסון" },
+  { title: "שקיעות אדומות", artist: "עדן חסון" },
+  { title: "סוף סוף אני", artist: "עדן חסון" },
+  { title: "אימא אדמה", artist: "נועה קירל" },
+  { title: "טיפש שכמוני", artist: "נועה קירל" },
+  { title: "בואי", artist: "סטטיק ובן אל תבורי" },
+  { title: "תותים", artist: "סטטיק ובן אל תבורי" },
+  { title: "אוהב אותה", artist: "סטטיק ובן אל תבורי" },
+  { title: "אלוהים אדירים", artist: "עדן בן זקן" },
+  { title: "עומדת מלכה", artist: "עדן בן זקן" },
+  { title: "שדה תעופה", artist: "עומר אדם ונסרין קדרי" },
+  { title: "יאללה ביי", artist: "הראל סקעת" },
+  { title: "כאן אני רוצה לגור", artist: "ישי ריבו" },
+  { title: "שאיבת מים", artist: "ישי ריבו" },
+  { title: "נולד לרקוד", artist: "שלמה ארצי" },
+  { title: "ילדה טובה", artist: "עדן חסון" },
+  { title: "רואים את זה עליי", artist: "משה פרץ" },
+  { title: "אני שלך", artist: "משה פרץ" },
+  { title: "נסראללה", artist: "אליעד" },
+  { title: "לצייר אותך", artist: "אלה לי" },
+  { title: "בוקר טוב אבא", artist: "סאבלימינל" },
+  { title: "המלחמה הבאה", artist: "סאבלימינל" },
+  { title: "אהבתי", artist: "ישי ריבו" },
+  { title: "מילה טובה", artist: "חנן בן ארי" },
+  { title: "לרגע אחד", artist: "עמיר דדון" },
+  { title: "כוכבים בשמיים", artist: "עופר לוי" },
+  { title: "אותה אהבה", artist: "ליאור נרקיס" },
+  { title: "לרקוד איתך", artist: "קובי פרץ" },
+  { title: "שלכת", artist: "גידי גוב" },
+  { title: "אלף לילה ולילה", artist: "אריק איינשטיין" },
+  { title: "מכתב לאחי", artist: "שלמה ארצי" }
+];
+
+function localPrefixMatches(term){
+  const t = term.trim().toLowerCase();
+  if(!t) return [];
+  const startsWithMatches = AUTOCOMPLETE_INDEX.filter(s => {
+    const words = (s.title + ' ' + s.artist).toLowerCase().split(/\s+/);
+    return words.some(w => w.startsWith(t));
+  });
+  if(startsWithMatches.length > 0) return startsWithMatches.slice(0, 10);
+  // אם אין התאמת-תחילית, ניפול חזרה על חיפוש בכל מקום בטקסט (עוזר יותר בהקלדה חלקית)
+  return AUTOCOMPLETE_INDEX.filter(s =>
+    (s.title + ' ' + s.artist).toLowerCase().includes(t)
+  ).slice(0, 10);
+}
+
+function renderDatalistOptions(list){
+  const dl = document.getElementById('songList');
+  dl.innerHTML = list
+    .map(s => `<option value="${escapeHtml(s.title)} - ${escapeHtml(s.artist)}">`)
+    .join('');
+}
+
+// חיפוש חי מול כל קטלוג השירים הישראליים ב-iTunes (לא רק רשימת המשחק) -
+// כדי שההשלמה האוטומטית תרגיש כמו חיפוש בכל השירים.
+let liveSearchTimer = null;
+let liveSearchSeq = 0;   // כדי שתשובת רשת ישנה לא תדרוס תוצאה חדשה יותר
+async function liveSearchSongs(term){
+  const t = term.trim();
+  if(t.length < 1){
+    document.getElementById('songList').innerHTML = '';
+    return;
+  }
+  // תוצאה מקומית מיידית - "כיוון" כבר מהתו הראשון, בלי המתנה לרשת
+  renderDatalistOptions(localPrefixMatches(t));
+
+  // חיפוש חי מול הקטלוג המלא של iTunes - כבר מאות אחת.
+  // שולחים שתי בקשות במקביל: אחת לשירים ואחת לאמנים, כדי שגם אות
+  // ראשונה של שם אמן תחזיר את כל השירים שלו - וכך מקבלים המון תוצאות.
+  const mySeq = ++liveSearchSeq;
+  const mkUrl = (entity, limit) => 'https://itunes.apple.com/search?term=' +
+    encodeURIComponent(t) + '&media=music&entity=' + entity +
+    '&country=IL&lang=he_IL&limit=' + limit;
+
+  try{
+    const reqs = [ fetch(mkUrl('song', 40)) ];
+    if(t.length >= 2) reqs.push(fetch(mkUrl('musicArtist', 5))); // גם התאמת אמנים
+    const responses = await Promise.all(reqs.map(p => p.then(r => r.ok ? r.json() : null).catch(() => null)));
+    if(mySeq !== liveSearchSeq) return; // הגיעה כבר הקלדה חדשה יותר - מתעלמים
+
+    const songResults = (responses[0] && responses[0].results) || [];
+    const local = localPrefixMatches(t);
+    const seen = new Set(local.map(s => (s.title+s.artist).toLowerCase()));
+    const remote = [];
+    for(const r of songResults){
+      if(!r.trackName || !r.artistName) continue;
+      const key = (r.trackName + r.artistName).toLowerCase();
+      if(seen.has(key)) continue;
+      seen.add(key);
+      remote.push({ title: r.trackName, artist: r.artistName });
+    }
+    // מציגים קודם המון תוצאות אמיתיות מהקטלוג, ואז את הרשימה המקומית.
+    renderDatalistOptions([...remote, ...local].slice(0, 40));
+  } catch(e){
+    console.error('live search failed', e);
+  }
+}
+
+document.getElementById('guessInput').addEventListener('input', (e) => {
+  const val = e.target.value;
+  if(val.trim().length < 1){
+    document.getElementById('songList').innerHTML = '';
+  } else {
+    renderDatalistOptions(localPrefixMatches(val)); // מיידי, בלי debounce
+  }
+  clearTimeout(liveSearchTimer);
+  liveSearchTimer = setTimeout(() => liveSearchSongs(val), 140);
+});
+
+function buildTimeline(){
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = DURATIONS.map((d,i) => `<div class="seg" data-i="${i}"></div>`).join('');
+}
+
+function updateTimeline(){
+  document.querySelectorAll('.seg').forEach((seg,i) => {
+    seg.classList.remove('active','used');
+    if(i < attempt) seg.classList.add('used');
+    if(i === attempt) seg.classList.add('active');
+  });
+  document.getElementById('currentDur').textContent = DURATIONS[Math.min(attempt, DURATIONS.length-1)] + ' שנ׳';
+  document.getElementById('attemptCount').textContent = `ניסיון ${attempt+1} מתוך ${DURATIONS.length}`;
+  document.getElementById('scoreVal').textContent = totalScore;
+  document.getElementById('highScoreInline').textContent = sessionHighScore;
+  document.getElementById('roundLabel').textContent = dailyMode ? '🎯 השיר היומי' : 'סיבוב ' + roundNum;
+}
+
+function pickSong(){
+  const prevSongKey = current ? (current.title + current.artist) : null;
+  if(usedIndexes.size >= SONGS.length) usedIndexes = new Set(); // התחל מחדש אם עברנו על כולם
+  let idx;
+  let tries = 0;
+  do{
+    idx = Math.floor(Math.random()*SONGS.length);
+    tries++;
+  } while(
+    ((usedIndexes.has(idx) && usedIndexes.size < SONGS.length) ||
+     (SONGS.length > 1 && prevSongKey && (SONGS[idx].title + SONGS[idx].artist) === prevSongKey))
+    && tries < 50
+  );
+  usedIndexes.add(idx);
+  current = SONGS[idx];
+  attempt = 0;
+  finished = false;
+  guessMarks = [];
+  document.getElementById('guessList').innerHTML = '';
+  document.getElementById('guessInput').value = '';
+  document.getElementById('songList').innerHTML = '';
+  audio.pause();
+  audio.src = current.preview;
+  buildTimeline();
+  updateTimeline();
+}
+
+document.getElementById('playBtn').addEventListener('click', () => {
+  if(finished || !current) return;
+  const dur = DURATIONS[Math.min(attempt, DURATIONS.length-1)];
+  audio.currentTime = 0;
+  const playPromise = audio.play();
+  document.getElementById('playBtn').disabled = true;
+  clearTimeout(playTimeout);
+  playTimeout = setTimeout(() => {
+    audio.pause();
+    document.getElementById('playBtn').disabled = false;
+  }, dur*1000);
+  if(playPromise && playPromise.catch){
+    playPromise.catch(() => {
+      document.getElementById('playBtn').disabled = false;
+      setStatus('⚠️ הדפדפן חסם ניגון אוטומטי. לחץ שוב על הכפתור.', true);
+    });
+  }
+});
+
+function addGuessRow(text, correct){
+  const li = document.createElement('li');
+  li.className = correct ? 'right' : 'wrong';
+  li.innerHTML = `<span>${escapeHtml(text)}</span><span>${correct ? '✔️' : '❌'}</span>`;
+  document.getElementById('guessList').prepend(li);
+}
+
+function endGame(won){
+  finished = true;
+  clearTimeout(playTimeout);
+  audio.pause();
+  document.getElementById('gameCard').style.display = 'none';
+  const rc = document.getElementById('resultCard');
+  rc.style.display = 'block';
+
+  document.getElementById('resultTitle').textContent = won ? '🎉 כל הכבוד!' : '😔 הפעם לא הצליח';
+  document.getElementById('resultSong').textContent = current.title;
+  document.getElementById('resultArtist').textContent = current.artist;
+
+  if(dailyMode){
+    // במצב יומי אין ניקוד מצטבר - התוצאה היא באיזה ניסיון ניחשת
+    const res = saveDailyResult(won);
+    document.getElementById('resultPoints').textContent = won
+      ? ('ניחשת בניסיון ' + res.attempts + ' מתוך ' + res.total + '! ' + res.emoji)
+      : ('נסו שוב מחר! ' + res.emoji);
+    document.getElementById('shareBtn').style.display = 'block';
+    document.getElementById('nextRoundBtn').style.display = 'none';
+    return;
+  }
+
+  let pointsEarned = 0;
+  if(won){
+    const bonuses = DIFFICULTY[selectedDiff].correctBonuses;
+    pointsEarned = bonuses[Math.min(attempt, bonuses.length-1)];
+    totalScore += pointsEarned;
+  }
+
+  const isNewHigh = totalScore > sessionHighScore && sessionHighScore > 0;
+  if(totalScore > sessionHighScore){
+    sessionHighScore = totalScore;
+    localStorage.setItem(STORAGE_BEST, String(sessionHighScore));
+  }
+
+  let pointsLine = won
+    ? ('+' + pointsEarned + ' נקודות | סה"כ: ' + totalScore)
+    : ('סה"כ ניקוד: ' + totalScore);
+  if(isNewHigh) pointsLine += ' | 🏆 שיא חדש!';
+  document.getElementById('resultPoints').textContent = pointsLine;
+  document.getElementById('scoreVal').textContent = totalScore;
+  document.getElementById('shareBtn').style.display = 'none';
+  document.getElementById('nextRoundBtn').style.display = 'block';
+}
+
+function normalize(str){
+  return str.trim().toLowerCase().replace(/["'.\-]/g,'').replace(/\s+/g,' ');
+}
+
+function checkGuess(){
+  if(finished) return;
+  const raw = document.getElementById('guessInput').value;
+  if(!raw.trim()) return;
+  const guessNorm = normalize(raw);
+  const titleNorm = normalize(current.title);
+  const artistNorm = normalize(current.artist);
+  const correct = guessNorm.includes(titleNorm) || titleNorm.includes(guessNorm) || guessNorm.includes(artistNorm);
+
+  addGuessRow(raw, correct);
+  guessMarks.push(correct ? 'right' : 'wrong');
+  document.getElementById('guessInput').value = '';
+
+  if(correct){
+    endGame(true);
+    return;
+  }
+  totalScore = Math.max(0, totalScore - WRONG_PENALTY);
+  attempt++;
+  if(attempt >= DURATIONS.length){
+    endGame(false);
+  } else {
+    updateTimeline();
+  }
+}
+
+document.getElementById('submitBtn').addEventListener('click', checkGuess);
+document.getElementById('guessInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') checkGuess();
+});
+document.getElementById('skipBtn').addEventListener('click', () => {
+  if(finished) return;
+  addGuessRow('(דילוג)', false);
+  guessMarks.push('skip');
+  totalScore = Math.max(0, totalScore - SKIP_PENALTY);
+  attempt++;
+  if(attempt >= DURATIONS.length){
+    endGame(false);
+  } else {
+    updateTimeline();
+  }
+});
+
+// ---------------------------------------------------------------
+// השיר היומי - אותו שיר לכל השחקנים באותו יום, פעם אחת ביום,
+// עם שורת אימוג'י לשיתוף בוואטסאפ (כמו וורדל).
+// ---------------------------------------------------------------
+function dateKey(){
+  const d = new Date();
+  return d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
+}
+
+function dailySongQuery(){
+  // ערבוב דטרמיניסטי לפי התאריך - כדי שימים עוקבים לא יתנו שירים עוקבים ברשימה
+  const idx = (Math.imul(dateKey(), 2654435761) >>> 0) % SONG_QUERIES.length;
+  return SONG_QUERIES[idx];
+}
+
+function emojiResult(){
+  let s = '';
+  for(let i = 0; i < DURATIONS.length; i++){
+    const m = guessMarks[i];
+    s += m === 'right' ? '🟩' : m === 'wrong' ? '🟥' : m === 'skip' ? '⬜' : '⬛';
+  }
+  return s;
+}
+
+function saveDailyResult(won){
+  const res = {
+    key: dateKey(),
+    won: won,
+    attempts: attempt + 1,
+    total: DURATIONS.length,
+    emoji: emojiResult(),
+    title: current.title,
+    artist: current.artist
+  };
+  localStorage.setItem(STORAGE_DAILY, JSON.stringify(res));
+  return res;
+}
+
+function showDailyResult(saved){
+  document.getElementById('homeScreen').style.display = 'none';
+  document.getElementById('gameCard').style.display = 'none';
+  const rc = document.getElementById('resultCard');
+  rc.style.display = 'block';
+  document.getElementById('resultTitle').textContent = saved.won ? '🎯 כבר ניחשת את השיר של היום!' : '🎯 כבר שיחקת היום';
+  document.getElementById('resultSong').textContent = saved.title;
+  document.getElementById('resultArtist').textContent = saved.artist;
+  document.getElementById('resultPoints').textContent = (saved.won
+    ? ('ניחשת בניסיון ' + saved.attempts + ' מתוך ' + saved.total + '! ')
+    : 'מחר יש שיר חדש! ') + saved.emoji;
+  document.getElementById('shareBtn').style.display = 'block';
+  document.getElementById('nextRoundBtn').style.display = 'none';
+}
+
+async function startDaily(){
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(STORAGE_DAILY) || 'null'); }catch(e){}
+  if(saved && saved.key === dateKey()){
+    showDailyResult(saved);
+    return;
+  }
+  dailyMode = true;
+  DURATIONS = DIFFICULTY.easy.durations;
+  totalScore = 100;
+  roundNum = 1;
+  document.getElementById('homeScreen').style.display = 'none';
+  document.getElementById('loadingCard').style.display = 'block';
+
+  const q = dailySongQuery();
+  const r = await itunesSearch(q.artist + ' ' + q.title);
+  document.getElementById('loadingCard').style.display = 'none';
+
+  if(!r || !r.previewUrl){
+    setStatus('⚠️ לא הצלחתי לטעון את השיר היומי (בדקו חיבור אינטרנט ונסו שוב).', true);
+    document.getElementById('homeScreen').style.display = 'block';
+    dailyMode = false;
+    return;
+  }
+  SONGS = [{ title: r.trackName, artist: r.artistName, preview: r.previewUrl }];
+  usedIndexes = new Set();
+  current = null;
+  document.getElementById('gameCard').style.display = 'block';
+  document.getElementById('songList').innerHTML = '';
+  pickSong();
+}
+
+function shareText(res){
+  const d = new Date();
+  const ds = d.getDate() + '.' + (d.getMonth()+1) + '.' + d.getFullYear();
+  return '🎵 שירלס - השיר היומי ' + ds + '\n' +
+         res.emoji + '\n' +
+         (res.won ? ('ניחשתי בניסיון ' + res.attempts + '/' + res.total + '!') : 'הפעם לא הצלחתי 😅') +
+         '\nבואו לנסות גם!';
+}
+
+document.getElementById('dailyBtn').addEventListener('click', startDaily);
+document.getElementById('shareBtn').addEventListener('click', async () => {
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(STORAGE_DAILY) || 'null'); }catch(e){}
+  if(!saved) return;
+  const text = shareText(saved);
+  if(navigator.share){
+    try{ await navigator.share({ text: text }); return; }catch(e){ /* המשתמש ביטל - ננסה העתקה */ }
+  }
+  try{
+    await navigator.clipboard.writeText(text);
+    setStatus('✅ התוצאה הועתקה - אפשר להדביק בוואטסאפ!', false);
+  }catch(e){
+    window.open('https://wa.me/?text=' + encodeURIComponent(text));
+  }
+});
+
+renderHomeHighScore();
+</script>
+</body>
+</html>
